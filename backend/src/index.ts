@@ -2,9 +2,10 @@ import express from 'express';
 import { json } from 'body-parser';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { Post } from '../../types';
 
 async function loadPosts(): Promise<Post[]> {
-  const filePath = path.join(__dirname, 'posts.json');
+  const filePath = path.join(__dirname, '../posts.json');
   const data = await fs.readFile(filePath, 'utf-8');
   const posts: Post[] = JSON.parse(data);
   return posts;
@@ -40,6 +41,8 @@ async function startServer() {
         posts[postIndex].moderatorsDecision = moderatorsDecision;
       }
     }
+
+    res.sendStatus(200);
   });
 
   app.listen(port, () => {

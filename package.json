@@ -2,7 +2,8 @@
   "name": "farpost-moderation-feed",
   "version": "1.0.0",
   "scripts": {
-    "start": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+    "start": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "build": "npm run build --prefix backend and npm run build --prefix frontend"
   },
   "devDependencies": {
     "concurrently": "^7.0.0"
