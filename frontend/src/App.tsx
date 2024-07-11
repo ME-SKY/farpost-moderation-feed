@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { Post } from '../../types'
+import Posts from './components/posts'
+import Actions from './components/actions'
 
 const API = {
   getPosts: async () => {
     const response = await fetch('http://localhost:3000/posts')
     const data = await response.json()
-    return data
+    return data;
   },
   postPosts: async (posts: Post[]) => {
     const response = await fetch('http://localhost:3000/posts', {
@@ -24,32 +26,24 @@ const API = {
 }
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [selectedPost, setSelectedPost] = useState<number | null>(null);
+
+  useEffect(() => {
+    API.getPosts().then((postsData) => {
+      setPosts(postsData);
+    })
+  }, [])
+
+
 
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="App">
+      <Posts items={posts}/>
+      <Actions/>
+    </div>
   )
 }
 

@@ -1,0 +1,8 @@
+.actions {
+  flex: 20%;
+  height: fit-content;
+  width: 20%;
+  position: fixed;
+  right: 20px;
+  top: 20px;
+}
