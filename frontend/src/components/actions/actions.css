@@ -1,8 +1,58 @@
 .actions {
   flex: 20%;
   height: fit-content;
-  width: 20%;
+  width: calc(20% - 20px);
   position: fixed;
   right: 20px;
   top: 20px;
+}
+
+.actions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ul li {
+  margin-bottom: 8px;
+}
+
+/* .actions ul li.action button {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 18px;
+} */
+
+button {
+  height: 17px;
+  padding: 0;
+  margin: 0;
+  color: black;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 18px;
+}
+
+.label {
+  width: 71px;
+  text-align: left;
+}
+
+.key-combination {
+  position: relative;
+}
+
+.key-combination::before {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  position: absolute;
+  left: -12px;
+  top: 5px;
+  background: var(--circle-color);
 }
