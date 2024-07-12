@@ -13,7 +13,7 @@
   margin: 0;
 }
 
-.ul li {
+ul li {
   margin-bottom: 8px;
 }
 
@@ -25,7 +25,7 @@
 
 button {
   height: 17px;
-  padding: 0;
+  padding: 0 4px;
   margin: 0;
   color: black;
   border: none;
@@ -34,6 +34,12 @@ button {
   display: flex;
   flex-flow: row nowrap;
   gap: 18px;
+  transition: box-shadow 0.3s;
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0);
+}
+
+button:hover {
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.6);
 }
 
 .label {

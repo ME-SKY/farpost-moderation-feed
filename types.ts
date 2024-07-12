@@ -12,3 +12,8 @@ export type Post = {
     reason?: string;
   };
 };
+
+export type ModeratorsDecision = {
+  decision: 'approve' | 'decline' | 'escalate';
+  reason?: string;
+}

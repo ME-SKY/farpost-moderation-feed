@@ -2,9 +2,9 @@ import React from 'react'
 import { type Post } from '../../../../types';
 import './post.css'
 
-function Post({post}: {post: Post}) {
+function Post({post, selected, selectPost}: {post: Post, selected: boolean, selectPost: (id: number) => void}) {
   return (
-    <div className="post">
+    <div data-id={post.id} className={`post ${selected ? 'selected' : ''} ${post.moderatorsDecision ? post.moderatorsDecision.decision : ''}`} onClick={() => selectPost(post.id)}>
       <div className="info">
         <div className="id-and-time">
           <a className="post-id">{post.id}</a>
@@ -24,4 +24,4 @@ function Post({post}: {post: Post}) {
   )
 }
 
-export default Post
+export default Post;
