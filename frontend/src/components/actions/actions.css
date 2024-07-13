@@ -17,12 +17,6 @@ ul li {
   margin-bottom: 8px;
 }
 
-/* .actions ul li.action button {
-  display: flex;
-  flex-flow: row nowrap;
-  gap: 18px;
-} */
-
 button {
   height: 17px;
   padding: 0 4px;

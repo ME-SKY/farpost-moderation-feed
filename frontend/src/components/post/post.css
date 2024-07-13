@@ -68,7 +68,6 @@
 }
 
 .title {
-  /* font-weight: 400; */
   max-height: 28px;
   font-size: 24px;
   flex: 100%;
@@ -81,7 +80,6 @@
   padding-right: 16px;
   flex: 65%;
   min-height: 402px;
-  /* font-weight: 400; */
 }
 
 .description::after {

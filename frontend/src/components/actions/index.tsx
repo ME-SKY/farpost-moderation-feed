@@ -9,6 +9,10 @@ const ACTIONS = [
 ]
 
 function Actions() {
+
+
+  //TODO: call the actions on click or not?
+
   return (
     <div className='actions'>
       <ul>

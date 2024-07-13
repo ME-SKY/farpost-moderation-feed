@@ -9,26 +9,10 @@ function Posts({items, selectedPost, selectPost}: {items: TPost[], selectedPost:
 
   useEffect(() => {
     if (selectedPost !== null && containerRef.current) {
-      console.log('haha')
       const selectedElement = containerRef.current.querySelector(`[data-id='${selectedPost}']`);
+      
       if (selectedElement) {
-        const containerTop = containerRef.current.getBoundingClientRect().top;
-        const elementTop = selectedElement.getBoundingClientRect().top;
-        console.log('containerTop', containerTop, 'elementTop', elementTop)
-        const offset = elementTop - containerTop - 20;
-
-        const scrollValue = containerRef.current.scrollTop + offset;
-        console.log('scrollValue', scrollValue);
-
-
-        
-        // containerRef.current.scrollTo({
-        //   top: 20,
-        //   behavior: 'smooth',
-        // });
-        // console.log('should scroll')
         selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        // containerRef.current.scrollTop -= 20;
       }
     }
   }, [selectedPost]);

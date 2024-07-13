@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
-import './reason-modal.css'; // Assuming you have some CSS for styling the modal
+import './reason-modal.css';
 
 const ReasonModal = forwardRef((props, ref) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -20,12 +20,10 @@ const ReasonModal = forwardRef((props, ref) => {
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     event.stopPropagation();
-    console.log('event textarea', event);
     setValue(event.target.value);
   };
 
   return (
-    // <>
     isVisible && (
       <div className="modal-overlay">
         <div className="modal-content">
@@ -36,7 +34,6 @@ const ReasonModal = forwardRef((props, ref) => {
         </div>
       </div>
     )
-    // </>
   );
 });
 
