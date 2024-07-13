@@ -17,11 +17,11 @@ function Post({post, selected, selectPost}: {post: Post, selected: boolean, sele
         <h3 className="title">{post.bulletinSubject}</h3>
         <p className="description">{post.bulletinText}</p>
         <div className="images">{
-          post.bulletinImages?.map((image, index) => <img key={image} alt='some image' src={image} />)
+          post.bulletinImages?.map((image) => <img key={image} alt='some image' src={image} />)
         }</div>
       </div>
     </div>
   )
 }
 
-export default Post;
+export default React.memo(Post);

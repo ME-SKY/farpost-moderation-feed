@@ -1,7 +1,7 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import './reason-modal.css';
 
-const ReasonModal = forwardRef((props, ref) => {
+const ReasonModal = forwardRef((props: { onClose: (value: string) => void }, ref) => {
   const [isVisible, setIsVisible] = useState(false);
   const [value, setValue] = useState('');
 

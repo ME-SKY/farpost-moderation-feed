@@ -5,35 +5,18 @@ import { type ModeratorsDecision, type Post } from '../../types';
 import Posts from './components/posts'
 import Actions from './components/actions'
 import ReasonModal from './components/reason-modal';
-
-
-//TODO: maybe move it in separate file?
-const API = {
-  getPosts: async () => {
-    const response = await fetch('http://localhost:3000/posts')
-    const data = await response.json()
-    return data;
-  },
-  postDecisions: async (decisions: { id: number, moderatorsDecision: ModeratorsDecision }[]) => {
-    const response = await fetch('http://localhost:3000/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(decisions),
-    })
-
-    return response;
-  },
-}
+import { useAppProvider } from './providers';
 
 function App() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [selectedPost, setSelectedPost] = useState<number | null>(null);
+  const { posts, selectedPost, setSelectedPost, loadPosts, sendDecisions, setPosts } = useAppProvider();
 
   //TODO: can i avoid to using a lot of refs here?
   const decisions = useRef(new Map());
-  const reasonModalRef = useRef();
+  const reasonModalRef = useRef<{
+    showModal: (valueToSet: string) => void;
+    hideModal: () => void;
+    isVisible: boolean;
+  }>();
   const postsRef = useRef(posts);
   const selectedPostRef = useRef(selectedPost);
   const f7ButtonPressedAlready = useRef(false);
@@ -65,31 +48,27 @@ function App() {
 
   const saveDecisions = () => {
     const arrayOfDecisions = Array.from(decisions.current.entries()).map(([id, moderatorsDecision]) => ({ id, moderatorsDecision }));
-    
-    //TODO: is it really proper way?
-    API.postDecisions(arrayOfDecisions).then((res) => {
+
+    sendDecisions(arrayOfDecisions).then((res: Response) => {
       if (res.ok) {
         decisions.current.clear();
         postsRef.current = [];
         selectedPostRef.current = null;
       }
-
     }).then(() => {
-      API.getPosts().then((postsData) => {
-        setPosts(postsData);
-        setSelectedPost(postsData[0].id);
-      })
-    })
+      loadPosts();
+    });
   }
 
   const handleKey = (event: KeyboardEvent) => {
     f7ButtonPressedAlready.current = false;
-    // @ts-ignore
+
     if (reasonModalRef?.current?.isVisible) {
       return;
     }
+
     event.preventDefault();
-  
+
     const selectedPostIndex = postsRef.current.findIndex((post) => post.id === selectedPostRef.current);
 
     if (event.shiftKey && event.code === 'Enter') {
@@ -98,7 +77,7 @@ function App() {
         setPosts([...postsRef.current]);
 
         decisions.current.set(selectedPostRef.current, { decision: 'escalate' });
-        
+
         document.removeEventListener('keydown', keydownF7Handler);
         //TODO: how to fix this: Property 'showModal' does not exist on type 'never'.ts(2339)
         reasonModalRef?.current?.showModal();
@@ -116,23 +95,21 @@ function App() {
 
     //TODO: can i simplify this condition?
     if ((event.code === 'Delete' || event.code === 'Backspace' || event.code === 'Del') && !event.shiftKey) {
+      console.log('event', event);
       if (selectedPostIndex >= 0) {
         postsRef.current[selectedPostIndex].moderatorsDecision = { decision: 'decline' };
         setPosts([...postsRef.current]);
-        
+
         decisions.current.set(selectedPostRef.current, { decision: 'decline' });
-  
+
         document.removeEventListener('keydown', keydownF7Handler);
         //TODO: how to fix this: Property 'showModal' does not exist on type 'never'.ts(2339)
-        reasonModalRef?.current?.showModal();
+        reasonModalRef.current && reasonModalRef.current.showModal();
       }
     }
 
     if (event.code === 'Enter' && !postsRef.current.length) {
-      API.getPosts().then((postsData) => {
-        setPosts(postsData);
-        setSelectedPost(postsData[0].id);
-      })
+      loadPosts();
     }
   };
 
@@ -162,11 +139,10 @@ function App() {
 
   return (
     <div className="App">
-      {/* TODO: check that using condition here like this not firing the additional rerenders */}
-      {posts.length ? <Posts items={posts} selectedPost={selectedPost} selectPost={setSelectedPost} /> :
+      {posts.length ?
+        <Posts items={posts} selectedPost={selectedPost} selectPost={setSelectedPost} /> :
         <div className='initial-text'> <h3>Чтобы загрузить посты нажмите кнопку Enter</h3></div>}
       <Actions />
-      {/* TODO: onClose not defined here - ReasonModal uses refForwarding, how to specify props properly here?  */}
       <ReasonModal ref={reasonModalRef} onClose={setCurrentDecision} />
     </div>
   )
