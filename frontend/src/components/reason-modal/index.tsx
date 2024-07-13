@@ -19,6 +19,7 @@ const ReasonModal = forwardRef((props, ref) => {
   }));
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    event.stopPropagation();
     console.log('event textarea', event);
     setValue(event.target.value);
   };

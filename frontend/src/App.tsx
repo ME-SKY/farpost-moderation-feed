@@ -20,8 +20,8 @@ const API = {
       },
       body: JSON.stringify(decisions),
     })
-    const data = await response.json();
-    return data;
+
+    return response;
   },
 }
 
@@ -36,14 +36,36 @@ function App() {
   const reasonModalRef = useRef();
   const postsRef = useRef(posts);
   const selectedPostRef = useRef(selectedPost);
+  const f7ButtonPressedAlready = useRef(false);
+
+  const keydownF7Handler = useCallback((event: KeyboardEvent) => {
+    console.log('keydownF7Handler');
+    event.preventDefault();
+
+    if (event.key === 'F7' && decisions.current.size === postsRef.current.length && !f7ButtonPressedAlready.current) {
+      // event.preventDefault();
+      f7ButtonPressedAlready.current = true;
+      saveDecisions();
+      decisions.current.clear();
+    }
+  }, []);
 
   function setCurrentDecision(value: string) {
+
     if (value) {
       const currentDecision = decisions.current.get(selectedPostRef.current);
+
+      if (currentDecision.decision !== 'approve') {
+        console.log('add keydownF7Handler');
+        document.addEventListener('keydown', keydownF7Handler);
+
+      }
       currentDecision.reason = value;
       decisions.current.set(selectedPost, currentDecision)
     }
 
+    const selectedPostIndex = postsRef.current.findIndex((post) => post.id === selectedPostRef.current);
+    setSelectedPost(postsRef.current[selectedPostIndex + 1]?.id ?? null);
     console.log('decisions', decisions.current);
   }
 
@@ -58,30 +80,53 @@ function App() {
   }
 
   const escalateAction = (id: number) => {
-
+    //@ts-ignore
+    reasonModalRef?.current?.showModal();
+    decisions.current.set(selectedPost, { decision: 'decline' });
   }
 
   const saveDecisions = () => {
-    //TODO: fix it
-    API.postDecisions(decisions.current).then((data) => {
-      console.log(data)
+    const arrayOfDecisions = Array.from(decisions.current.entries()).map(([id, moderatorsDecision]) => ({ id, moderatorsDecision }));
+    API.postDecisions(arrayOfDecisions).then((res) => {
+      if (res.ok) {
+        decisions.current.clear();
+        postsRef.current = [];
+        selectedPostRef.current = null;
+      }
+
+    }).then(() => {
+      API.getPosts().then((postsData) => {
+        setPosts(postsData);
+        setSelectedPost(postsData[0].id);
+      })
     })
   }
 
   const handleKey = (event: KeyboardEvent) => {
+    f7ButtonPressedAlready.current = false;
 
     // @ts-ignore
-    if(reasonModalRef?.current?.isVisible) {
+    if (reasonModalRef?.current?.isVisible) {
       return;
     }
     event.preventDefault();
-    event.stopPropagation();
+    // event.stopPropagation();
     console.log('it works!', event);
     const selectedPostIndex = postsRef.current.findIndex((post) => post.id === selectedPostRef.current);
     // Check if Shift+Enter is pressed
     if (event.shiftKey && event.code === 'Enter') {
-      reasonModalRef?.current?.showModal();
-      decisions.current.set(selectedPostRef.current, { decision: 'decline' });
+      if (selectedPostIndex >= 0) {
+        console.log('will change');
+        postsRef.current[selectedPostIndex].moderatorsDecision = { decision: 'escalate' };
+        setPosts([...postsRef.current]);
+        decisions.current.set(selectedPostRef.current, { decision: 'escalate' });
+        // setSelectedPost(postsRef.current[selectedPostIndex + 1]?.id ?? null);
+        console.log('remove keydownF7Handler');
+        document.removeEventListener('keydown', keydownF7Handler);
+        reasonModalRef?.current?.showModal();
+        decisions.current.set(selectedPostRef.current, { decision: 'escalate' });
+      }
+
       // Prevent the default behavior if needed
       // Execute your desired action here
       console.log('Shift+Enter was pressed!');
@@ -99,13 +144,50 @@ function App() {
       }
     }
 
-    if (event.key === 'Delete') {
-      declineAction();
+    if ((event.code === 'Delete' || event.code === 'Backspace' || event.code === 'Del') && !event.shiftKey) {
+      if (selectedPostIndex >= 0) {
+        console.log('will change')
+        postsRef.current[selectedPostIndex].moderatorsDecision = { decision: 'decline' };
+        setPosts([...postsRef.current]);
+        decisions.current.set(selectedPostRef.current, { decision: 'decline' });
+        // setSelectedPost(postsRef.current[selectedPostIndex + 1]?.id ?? null);
+        console.log('remove keydownF7Handler');
+        document.removeEventListener('keydown', keydownF7Handler);
+        reasonModalRef?.current?.showModal();
+        decisions.current.set(selectedPostRef.current, { decision: 'decline' });
+      }
     }
+
+    if (event.code === 'Enter' && !postsRef.current.length) {
+      API.getPosts().then((postsData) => {
+        setPosts(postsData);
+        setSelectedPost(postsData[0].id);
+      })
+    }
+
+    // if (event.code === 'fn' && decisions.current.size === 10) {
+    //   event.preventDefault();
+    //   saveDecisions();
+    //   decisions.current.clear();
+    // }
 
 
 
   };
+
+  const handleKeyUpFn = (event: KeyboardEvent) => {
+    if (event.getModifierState('Fn')) {
+      console.log('Fn was pressed');
+    }
+  }
+
+
+
+  // const handleKeyUpFn = (event: KeyboardEvent) => {
+  //   if (event.getModifierState('Fn')) {
+  //     console.log('Fn was pressed');
+  //   }
+  // }
 
 
 
@@ -142,15 +224,16 @@ function App() {
     // };
 
     document.addEventListener('keyup', handleKey);
+    console.log('add keydownF7Handler');
+    document.addEventListener('keydown', keydownF7Handler);
 
-    API.getPosts().then((postsData) => {
-      setPosts(postsData);
-      setSelectedPost(postsData[0].id);
-    })
 
-    // return () => {
-    //   document.removeEventListener('keyup', handleKey);
-    // };
+
+    return () => {
+      document.removeEventListener('keyup', handleKey);
+      console.log('remove keydownF7Handler');
+      document.removeEventListener('keydown', keydownF7Handler);
+    };
   }, []);
 
   useEffect(() => {
@@ -161,9 +244,9 @@ function App() {
 
   useEffect(() => {
     const preventScrolling = (event: KeyboardEvent) => {
-      if(event.code === 'Space' && !reasonModalRef?.current?.isVisible) {
+      if (event.code === 'Space' && !reasonModalRef?.current?.isVisible) {
         event.preventDefault();
-    }  
+      }
     }
     document.addEventListener('keydown', preventScrolling);
 
@@ -175,7 +258,8 @@ function App() {
 
   return (
     <div className="App">
-      <Posts items={posts} selectedPost={selectedPost} selectPost={setSelectedPost} />
+      {posts.length ? <Posts items={posts} selectedPost={selectedPost} selectPost={setSelectedPost} /> :
+        <div className='initial-text'> <h3>Чтобы загрузить посты нажмите кнопку Enter</h3></div>}
       <Actions />
       <ReasonModal ref={reasonModalRef} onClose={setCurrentDecision} />
     </div>

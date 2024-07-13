@@ -4,8 +4,8 @@ import './post.css'
 
 function Post({post, selected, selectPost}: {post: Post, selected: boolean, selectPost: (id: number) => void}) {
   return (
-    <div data-id={post.id} className={`post ${selected ? 'selected' : ''} ${post.moderatorsDecision ? post.moderatorsDecision.decision : ''}`} onClick={() => selectPost(post.id)}>
-      <div className="info">
+    <div data-id={post.id} className={`post ${selected ? 'selected' : ''} `} onClick={() => selectPost(post.id)}>
+      <div className={`info ${post.moderatorsDecision ? post.moderatorsDecision.decision : ''}`}>
         <div className="id-and-time">
           <a className="post-id">{post.id}</a>
           —
