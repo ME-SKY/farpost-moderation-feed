@@ -10,9 +10,15 @@ function Posts({items, selectedPost, selectPost}: {items: TPost[], selectedPost:
   useEffect(() => {
     if (selectedPost !== null && containerRef.current) {
       const selectedElement = containerRef.current.querySelector(`[data-id='${selectedPost}']`);
+      const selectedPostIndex = items.findIndex((post) => post.id === selectedPost);
       
       if (selectedElement) {
-        selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (selectedPostIndex === 0) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          selectedElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
       }
     }
   }, [selectedPost]);

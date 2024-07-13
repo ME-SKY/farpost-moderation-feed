@@ -1,6 +1,6 @@
 .posts {
   display: flex;
   flex-flow: column nowrap;
-  width: 79%;
+  width: 86%;
   gap: 20px;
 }

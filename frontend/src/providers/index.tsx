@@ -28,9 +28,12 @@ const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const loadPosts = useCallback(() => {
     PostsApi.getPosts().then((postsData) => {
-      if (postsData.length === 0) {
+      if (postsData.length !== 0) {
         setPosts(postsData);
         setSelectedPost(postsData[0].id);
+      } else {
+        setPosts([]);
+        setSelectedPost(null);
       }  
     }).catch((error) => {
       console.error('error', error);

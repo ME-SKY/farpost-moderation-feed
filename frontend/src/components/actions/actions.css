@@ -1,7 +1,6 @@
 .actions {
-  flex: 20%;
   height: fit-content;
-  width: calc(20% - 20px);
+  width: 160px;
   position: fixed;
   right: 20px;
   top: 20px;
@@ -14,12 +13,7 @@
 }
 
 ul li {
-  margin-bottom: 8px;
-}
-
-button {
   height: 17px;
-  padding: 0 4px;
   margin: 0;
   color: black;
   border: none;
@@ -28,20 +22,19 @@ button {
   display: flex;
   flex-flow: row nowrap;
   gap: 18px;
-  transition: box-shadow 0.3s;
-  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0);
-}
-
-button:hover {
-  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.6);
+  margin-bottom: 8px;
 }
 
 .label {
+  font-size: 14px;
   width: 71px;
   text-align: left;
 }
 
 .key-combination {
+  color: #777777;
+  white-space: pre;
+  font-size: 14px;
   position: relative;
 }
 

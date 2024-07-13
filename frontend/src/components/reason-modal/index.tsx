@@ -27,7 +27,7 @@ const ReasonModal = forwardRef((props: { onClose: (value: string) => void }, ref
     isVisible && (
       <div className="modal-overlay">
         <div className="modal-content">
-          <h3>Укажите причину/детали/описание</h3>
+          <h3>Укажите примечание/комментарий</h3>
           <textarea
             name="reason" id="reason" value={value} onChange={handleChange} />
           <button onClick={() => { props.onClose(value); setIsVisible(false) }}>Ок</button>

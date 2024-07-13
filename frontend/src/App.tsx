@@ -6,11 +6,11 @@ import Posts from './components/posts'
 import Actions from './components/actions'
 import ReasonModal from './components/reason-modal';
 import { useAppProvider } from './providers';
+import { getDecisionFromEvent } from './helpers';
 
 function App() {
   const { posts, selectedPost, setSelectedPost, loadPosts, sendDecisions, setPosts } = useAppProvider();
 
-  //TODO: can i avoid to using a lot of refs here?
   const decisions = useRef(new Map());
   const reasonModalRef = useRef<{
     showModal: (valueToSet: string) => void;
@@ -62,49 +62,32 @@ function App() {
 
   const handleKey = (event: KeyboardEvent) => {
     f7ButtonPressedAlready.current = false;
+    event.preventDefault();
 
     if (reasonModalRef?.current?.isVisible) {
       return;
     }
 
-    event.preventDefault();
-
     const selectedPostIndex = postsRef.current.findIndex((post) => post.id === selectedPostRef.current);
+    const decisionText = getDecisionFromEvent(event);
 
-    if (event.shiftKey && event.code === 'Enter') {
-      if (selectedPostIndex >= 0) {
-        postsRef.current[selectedPostIndex].moderatorsDecision = { decision: 'escalate' };
-        setPosts([...postsRef.current]);
+    if (selectedPostIndex >= 0 && decisionText !== null) {
+      const previousDecision = decisions.current.get(postsRef.current[selectedPostIndex].id);
 
-        decisions.current.set(selectedPostRef.current, { decision: 'escalate' });
-
-        document.removeEventListener('keydown', keydownF7Handler);
-        //TODO: how to fix this: Property 'showModal' does not exist on type 'never'.ts(2339)
-        reasonModalRef?.current?.showModal();
+      const decisionToSet = {
+        decision: decisionText as ModeratorsDecision['decision'],
+        reason: previousDecision?.reason ?? ''
       }
-    }
 
-    if (event.code === 'Space') {
-      if (selectedPostIndex >= 0) {
-        postsRef.current[selectedPostIndex].moderatorsDecision = { decision: 'approve' };
-        setPosts([...postsRef.current]);
-        decisions.current.set(selectedPostRef.current, { decision: 'approve' });
+      postsRef.current[selectedPostIndex].moderatorsDecision = decisionToSet;
+      setPosts([...postsRef.current]);
+      decisions.current.set(selectedPostRef.current, decisionToSet);
+
+      if (['decline', 'escalate'].includes(decisionText)) {
+        document.removeEventListener('keydown', keydownF7Handler);
+        reasonModalRef.current && reasonModalRef.current.showModal(decisionToSet.reason);
+      } else {
         setSelectedPost(postsRef.current[selectedPostIndex + 1]?.id ?? null);
-      }
-    }
-
-    //TODO: can i simplify this condition?
-    if ((event.code === 'Delete' || event.code === 'Backspace' || event.code === 'Del') && !event.shiftKey) {
-      console.log('event', event);
-      if (selectedPostIndex >= 0) {
-        postsRef.current[selectedPostIndex].moderatorsDecision = { decision: 'decline' };
-        setPosts([...postsRef.current]);
-
-        decisions.current.set(selectedPostRef.current, { decision: 'decline' });
-
-        document.removeEventListener('keydown', keydownF7Handler);
-        //TODO: how to fix this: Property 'showModal' does not exist on type 'never'.ts(2339)
-        reasonModalRef.current && reasonModalRef.current.showModal();
       }
     }
 
