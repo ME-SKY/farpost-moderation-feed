@@ -13,7 +13,7 @@ function App() {
 
   const decisions = useRef(new Map());
   const reasonModalRef = useRef<{
-    showModal: (valueToSet: string) => void;
+    showModal: (valueToSet: string, required: boolean) => void;
     hideModal: () => void;
     isVisible: boolean;
   }>();
@@ -85,7 +85,8 @@ function App() {
 
       if (['decline', 'escalate'].includes(decisionText)) {
         document.removeEventListener('keydown', keydownF7Handler);
-        reasonModalRef.current && reasonModalRef.current.showModal(decisionToSet.reason);
+        const required = decisionText === 'decline';
+        reasonModalRef.current && reasonModalRef.current.showModal(decisionToSet.reason, required);
       } else {
         setSelectedPost(postsRef.current[selectedPostIndex + 1]?.id ?? null);
       }
